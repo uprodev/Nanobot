@@ -40,7 +40,7 @@ jQuery(document).ready(function($) {
 						if(window.bgDecors.length) window.bgDecors.forEach(f => f());
 					}
 				} else {
-			 		_this.remove();
+					_this.remove();
 				}
 			}
 		});
@@ -93,6 +93,46 @@ jQuery(document).ready(function($) {
 
 	});
 
+
+	$('.more_posts_case_cat').on('click', function(e){
+		e.preventDefault();
+		let _this = $(this); 
+
+		let data = {
+			'action': 'more_posts_case_cat',
+			'query': _this.attr('data-param-posts'),
+			'page': this_page,
+		}
+
+		const parent = e.target.closest('.filter-list__foter');
+		parent && parent?.classList.add('_loader');
+
+		$.ajax({
+			url: '/wp-admin/admin-ajax.php',
+			data: data,
+			type: 'POST',
+			success:function(data){
+				if (data) {
+					const temporaryСontainer = document.createElement('div');
+					temporaryСontainer.insertAdjacentHTML('beforeend', data);
+
+					window.iso.append('1', temporaryСontainer.children); 
+					
+					temporaryСontainer.remove();
+
+					this_page++;                      
+					if (this_page == _this.attr('data-max-pages')) {
+						_this.remove();              
+					}
+				} else {                              
+					_this.remove();                    
+				}
+			},
+			complete: function() {
+				parent && parent?.classList.remove('_loader');
+			}
+		});
+	});
 
 
 

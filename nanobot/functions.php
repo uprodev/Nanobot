@@ -12,7 +12,7 @@ function load_style_script(){
 	wp_enqueue_script('jquery');
 	wp_enqueue_script('vendors', get_template_directory_uri() . '/js/vendors.min.js');
 	wp_enqueue_script('app', get_template_directory_uri() . '/js/app.min.js');
-	wp_enqueue_script('add', get_template_directory_uri() . '/js/add.js', array(), false, true);
+	wp_enqueue_script('add', get_template_directory_uri() . '/js/add.js', array(), time(), true);
 }
 
 
@@ -35,6 +35,7 @@ add_action('after_setup_theme', function(){
 		'footer-4' => 'Footer menu-4',
 		'footer-5' => 'Footer menu-5',
 		'footer-6' => 'Footer menu-6',
+		'footer-7' => 'Footer menu-7',
 	) );
 });
 
@@ -193,6 +194,29 @@ function more_posts() {
 		'posts'=> $posts,
 		'pagenavi' => $my_pagenavi
 	]);
+}
+
+
+
+add_action('wp_ajax_more_posts_case_cat', 'more_posts_case_cat');
+add_action('wp_ajax_nopriv_more_posts_case_cat', 'more_posts_case_cat');
+function more_posts_case_cat() {
+	$args = unserialize( stripslashes( $_POST['query'] ) );
+	$args['paged'] = $_POST['page'] + 1;
+	$args['post_status'] = 'publish';
+
+	$query = new WP_Query( $args );
+	if ( $query->have_posts() ) {
+		while ( $query->have_posts() ) { 
+			$query->the_post();
+
+			require dirname(__FILE__) . '/inc/get_case_cats.php';
+
+			get_template_part('parts/content', 'post_case_cat', ['post_terms_ids' => $post_terms_ids, 'child_term_name_2' => $child_term_name_2]);
+
+		}
+		die();
+	}
 }
 
 
@@ -486,8 +510,8 @@ function my_pagenavi($current, $max, $base) {
     	'base'    => str_replace( $big, '%#%', get_pagenum_link( $big ) ),
     	'format'  => '',
     	'type' => 'array',
-        'mid_size' => 1,
-        'end_size' => 1,
+    	'mid_size' => 1,
+    	'end_size' => 1,
     	'prev_next' => false,
     	'current' => max( 1, $current-1 ),
     	'total'   => $max,
@@ -522,7 +546,7 @@ function my_pagenavi($current, $max, $base) {
     </ul>
 
     <?php
-  }
+}
 
 // Теперь, где нужно вывести пагинацию используем
 // my_pagenavi();
