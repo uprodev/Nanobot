@@ -1,4 +1,4 @@
-<div class="filter-list__item<?php if($args['post_terms_ids']) echo ' term-' . implode(' term-', $args['post_terms_ids']) ?>">
+<div class="filter-list__item">
 	<a href="<?php the_permalink() ?>" class="post-card-sm">
 		<div class="post-card-sm__img">
 			<?php the_post_thumbnail('full') ?>

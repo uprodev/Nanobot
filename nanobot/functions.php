@@ -6,7 +6,7 @@
 function load_style_script(){
 	//wp_enqueue_style('bootstrap', 'https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css');
 	wp_enqueue_style('fonts', 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap');
-	wp_enqueue_style('styles', get_template_directory_uri() . '/css/style.css');
+	wp_enqueue_style('styles', get_template_directory_uri() . '/css/style.min.css');
 	wp_enqueue_style('style', get_template_directory_uri() . '/style.css');
 
 	wp_enqueue_script('jquery');
@@ -217,6 +217,57 @@ function more_posts_case_cat() {
 		}
 		die();
 	}
+}
+
+
+
+add_action('wp_ajax_filter_posts_case_cat', 'filter_posts_case_cat');
+add_action('wp_ajax_nopriv_filter_posts_case_cat', 'filter_posts_case_cat');
+function filter_posts_case_cat(){
+	$args = array(
+		'post_type' => 'post', 
+		'posts_per_page' => 10,
+		'post_status' => 'publish',
+		'paged' => get_query_var('paged'),
+		'suppress_filters' => true
+	);
+
+	if($_POST['category']) $args['cat'] = explode(',', $_POST['category']);
+
+	$wp_query = new WP_Query($args);
+
+	if( $wp_query->have_posts() ) : ?>
+
+		<div class="filter-list__body" data-filter-body>
+
+			<?php while($wp_query->have_posts() ): $wp_query->the_post() ?>
+
+				<?php require dirname(__FILE__) . '/inc/get_case_cats.php' ?>
+
+				<?php get_template_part('parts/content', 'post_case_cat', ['child_term_name_2' => $child_term_name_2]) ?>
+
+			<?php endwhile; ?>
+
+		</div>
+
+		<?php if ( $wp_query->max_num_pages > 1 ) { ?>
+			<div class="more_posts_case_cat_wrap">
+				<script> var this_page = 1; </script>
+
+				<div class="filter-list__foter">
+					<div class="button-wrap text-center mt-md-30">
+						<a href="#" class="btn-default more_posts_case_cat" data-param-posts='<?php echo serialize($wp_query->query_vars); ?>' data-max-pages='<?php echo $wp_query->max_num_pages; ?>'><?php _e('Load more', 'Nanobot') ?></a>
+					</div>
+				</div>
+			</div>
+		<?php } ?>
+
+		<?php wp_reset_postdata(); 
+	else :
+		echo __('Posts not found', 'Nanobot');
+	endif;
+
+	die();
 }
 
 

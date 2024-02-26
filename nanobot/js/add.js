@@ -94,7 +94,23 @@ jQuery(document).ready(function($) {
 	});
 
 
-	$('.more_posts_case_cat').on('click', function(e){
+	$(document).on('change', 'input[name="category"]', function(){
+
+		$.ajax({
+			url: "/wp-admin/admin-ajax.php",
+			data: $("#filter_posts_case_cat").serialize(),
+			type: 'POST',
+			beforeSend: function (xhr) {},
+			success: function (data) {
+				if($('.more_posts_case_cat_wrap').length > 0) $('.more_posts_case_cat_wrap').remove();
+				$("#response_posts_case_cat").html(data);
+			},
+		});
+		return false;
+	});
+
+
+	$(document).on('click', '.more_posts_case_cat', function(e){
 		e.preventDefault();
 		let _this = $(this); 
 
@@ -113,12 +129,7 @@ jQuery(document).ready(function($) {
 			type: 'POST',
 			success:function(data){
 				if (data) {
-					const temporaryСontainer = document.createElement('div');
-					temporaryСontainer.insertAdjacentHTML('beforeend', data);
-
-					window.iso.append('1', temporaryСontainer.children); 
-					
-					temporaryСontainer.remove();
+					$('#response_posts_case_cat .filter-list__body').append(data);
 
 					this_page++;                      
 					if (this_page == _this.attr('data-max-pages')) {
